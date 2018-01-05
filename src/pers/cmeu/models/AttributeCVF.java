@@ -8,12 +8,13 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.ComboBox;
 
-public class AttributeCVF {
+public class AttributeCVF{
 	private ColumnItem columnItem;//用于存储子表子集
 	private BooleanProperty check = new SimpleBooleanProperty(true);;
 	private StringProperty conlumn= new SimpleStringProperty();
 	private StringProperty jdbcType =new SimpleStringProperty();
 	private ComboBox<String> javaType =new ComboBox<String>();
+	//propertyName和Conlumn相同
 	private StringProperty propertyName= new SimpleStringProperty();
 	private String comment;//表列的注释
 
@@ -52,6 +53,7 @@ public class AttributeCVF {
 	public String getConlumn() {
 		return conlumn.get();
 	}
+	//
 	public void setConlumn(String conlumn) {
 		this.setPropertyName(conlumn);
 		this.conlumn.set(conlumn);
@@ -106,7 +108,4 @@ public class AttributeCVF {
 		return "AttributeCVF [columnItem=" + columnItem + ", check=" + check + ", conlumn=" + conlumn + ", jdbcType="
 				+ jdbcType + ", javaType=" + javaType + ", propertyName=" + propertyName + "]";
 	}
-	
-	
-	
 }

@@ -5,10 +5,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import pers.cmeu.models.AttributeCVF;
 import pers.cmeu.models.DBType;
@@ -100,7 +97,9 @@ public class DBUtil {
 			AttributeCVF attribute = new AttributeCVF();
 			attribute.setConlumn(rs.getString("COLUMN_NAME"));
 			attribute.setComment(rs.getString("REMARKS"));
+			//Java 类型
 			attribute.setJavaType(JavaType.jdbcTypeToJavaType(rs.getString("TYPE_NAME")));
+			//数据库类型
 			attribute.setJdbcType(JDBCType.valiJDBCType(rs.getString("TYPE_NAME").toUpperCase()));
 			columnMap.put(rs.getString("COLUMN_NAME"), attribute);
 		}
@@ -111,6 +110,25 @@ public class DBUtil {
 		// 将主键放在第一位
 		String key = null;
 		key = getTablePrimaryKey(config, tableName);
+		//对列进行排序,再次修改的时候可以方便对比差异
+		Collections.sort(result, new Comparator<AttributeCVF>() {
+			@Override
+			public int compare(AttributeCVF o1, AttributeCVF o2) {
+				String str = o1.getConlumn();
+				String otherStr = o2.getConlumn();
+				int length = Math.min(otherStr.length(),str.length());
+				int compare = 0;
+				for(int i=0;i<length;i++){
+					if((compare = (str.charAt(i) - otherStr.charAt(i)))!=0){
+						break;
+					}
+				}
+				if(0 == compare){
+					compare = str.length() - otherStr.length();
+				}
+				return compare;
+			}
+		});
 		if (key != null) {
 			boolean anyKeyInFrist = false;
 			if (result.size() > 0) {
@@ -130,6 +148,7 @@ public class DBUtil {
 						}
 					}
 				}
+				//将primary column放到首位
 				result.add(0, result.remove(keyIndex));
 			}
 		}

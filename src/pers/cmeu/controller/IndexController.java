@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import javafx.collections.transformation.FilteredList;
+import javafx.scene.control.*;
 import org.apache.log4j.Logger;
 
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
@@ -19,17 +21,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -156,6 +147,8 @@ public class IndexController extends BaseController {
 	private Button btnUpdateEntity;
 	@FXML
 	private Button btnRunCreate;
+	@FXML
+	private Button btnBatRunCreate;
 	@FXML
 	private Button btnSaveConfig;
 	@FXML
@@ -340,12 +333,19 @@ public class IndexController extends BaseController {
 	}
 
 	/**
-	 * 加载数据库到树集
+	 * 加载数据库到树集,是数据库节点
 	 * 
 	 * @throws Exception
 	 */
 	public void loadTVDataBase() throws Exception {
 		TreeItem<String> rootTreeItem = tvDataBase.getRoot();
+		//设置可以多选,来批量生成
+		MultipleSelectionModel msm = tvDataBase.getSelectionModel();
+		if(msm != null){
+			msm.setSelectionMode(SelectionMode.MULTIPLE);
+			tvDataBase.setSelectionModel(msm);
+		}
+		
 		rootTreeItem.getChildren().clear();
 		List<DatabaseConfig> item = null;
 		item = ConfigUtil.getDatabaseConfig();
@@ -359,6 +359,16 @@ public class IndexController extends BaseController {
 			treeItem.setGraphic(dbImage);
 			rootTreeItem.getChildren().add(treeItem);
 		}
+		/*for (DatabaseConfig dbConfig : item) {
+			CheckBoxTreeItem<String> treeItem = new CheckBoxTreeItem<String>();
+			treeItem.setValue(dbConfig.getConnName());
+			ImageView dbImage = new ImageView("pers/resource/image/database.png");
+			dbImage.setFitHeight(20);
+			dbImage.setFitWidth(20);
+			dbImage.setUserData(dbConfig);
+			treeItem.setGraphic(dbImage);
+			rootTreeItem.getChildren().add(treeItem);
+		}*/
 	}
 
 	/**
@@ -558,6 +568,94 @@ public class IndexController extends BaseController {
 
 	}
 
+	public void runBatCreate(ActionEvent action){
+		if (txtProjectPath.getText().trim().equals("") || txtRootDir.getText().trim().equals("")) {
+			AlertUtil.showWarnAlert("项目所在目录以及类名为必填项;\r\n实体类可以通过双击左边树形数据库表加载...");
+			return;
+		}
+		//获取多选的节点
+		ObservableList observableList = tvDataBase.getSelectionModel().getSelectedItems();
+		if(observableList!= null && observableList.size()>0){
+			for(Object item : observableList){
+				TreeItem treeItem = (TreeItem)item;
+				String tableName = String.valueOf(treeItem.getValue());
+				String txtEntityName = StrUtil.unlineToPascal(tableName);
+				String txtDaoName = StrUtil.unlineToPascal(tableName) + "Dao";
+				String txtMapName = StrUtil.unlineToPascal(tableName) + "Mapper";
+				String txtServiceName = StrUtil.unlineToPascal(tableName) + "Service";
+				String txtServiceImplName = StrUtil.unlineToPascal(tableName) + "ServiceImpl";
+				List<SuperAttribute> thisSuperAttributes = new ArrayList<>();
+
+				System.out.println(tableName+":"+txtEntityName);
+
+				//创建属性配置
+				SuperAttribute attr = new SuperAttribute();
+				attr.setClassName(txtEntityName);
+				attr.setTableName(tableName);
+				attr.setDaoName(txtDaoName);
+				attr.setMapperName(txtMapName);
+				attr.setServiceName(txtServiceName);
+				attr.setServiceImplName(txtServiceImplName);
+
+				DatabaseConfig thisSelectedDatabaseConfig = (DatabaseConfig) treeItem.getParent().getGraphic().getUserData();
+				List<AttributeCVF> attributes = null;
+
+				String key = null;
+				try {
+					key = DBUtil.getTablePrimaryKey(thisSelectedDatabaseConfig, tableName);
+				} catch (Exception e) {
+					AlertUtil.showErrorAlert("获得主键失败!原因:\r\n" + e.getMessage());
+					log.error("获取表主键失败!!!" + e);
+				}
+
+				try {
+					attributes = DBUtil.getTableColumns(thisSelectedDatabaseConfig, tableName);
+					for (AttributeCVF temp : attributes) {
+						temp.setPropertyName(StrUtil.unlineToCamel(temp.getPropertyName()));
+					}
+				} catch (Exception e1) {
+					AlertUtil.showErrorAlert("获得属性失败!原因:\r\n" + e1.getMessage());
+					log.error("获得表的所有列失败!!!" + e1);
+				}
+
+				try {
+					// 从配置文件中获取配置信息并应用
+					ClassConfig classConfig = ConfigUtil.getClassConfig();
+					attr.setCreateGetSet(classConfig.isGetAndSet());
+					attr.setConstruct(classConfig.isConstruct());
+					attr.setConstructAll(classConfig.isConstructAll());
+					attr.setCamel(classConfig.isUnlineCamel());
+					attr.setSerializable(classConfig.isSeriz());
+					attr.setCreateJDBCType(classConfig.isCreateJDBCType());
+					log.debug("初始化创建类配置信息-->成功!");
+				} catch (Exception e) {
+					log.error("初始化创建类配置信息-->失败:" + e);
+				}
+				attr.setPrimaryKey(key);
+				attr.setAttributes(attributes);
+				thisSuperAttributes.add(attr);
+
+				CreateFileUtil fileUtil = CreateFileUtil.getInstance();
+				fileUtil.init(thisSelectedDatabaseConfig, thisSuperAttributes, cboCodeFormat.getValue(), txtProjectPath.getText(),
+						txtRootDir.getText(), txtEntityPackage.getText(), txtDaoPackage.getText(), txtMapPackage.getText(),
+						chkService.isSelected(), chkSpringAnno.isSelected(), txtServicePackage.getText(),
+						txtServiceImplPackage.getText(), txtUpdateMapper.getText(), chkAssist.isSelected(),
+						txtAssistPackage.getText(), txtAssistName.getText(), chkConfig.isSelected(), txtConfigPackage.getText(),
+						txtConfigName.getText(), chkMyUtil.isSelected(), txtMyUtilPackage.getText(), txtMyUtilName.getText());
+
+				try {
+					fileUtil.createAll();
+				} catch (Exception e) {
+					e.printStackTrace();
+					AlertUtil.showErrorAlert("创建失败:"+tableName+"!原因:\r\n" + e.getMessage());
+					log.error("创建所有文件失败!!!" + e);
+				}
+			}
+			AlertUtil.showInfoAlert("创建完成!");
+		}else{
+			AlertUtil.showInfoAlert("请选择批量处理的表!");
+		}
+	}
 	/**
 	 * 是否第一次创建
 	 * 
@@ -1088,4 +1186,11 @@ public class IndexController extends BaseController {
 		this.updateOfDatabaseConfig = updateOfDatabaseConfig;
 	}
 
+	public Button getBtnBatRunCreate() {
+		return btnBatRunCreate;
+	}
+
+	public void setBtnBatRunCreate(Button btnBatRunCreate) {
+		this.btnBatRunCreate = btnBatRunCreate;
+	}
 }

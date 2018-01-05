@@ -20,7 +20,7 @@ public class ClassUtil {
 	 * 
 	 * @param packageName
 	 * @param entityName
-	 * @param property
+	 * @param property 0是类型 1是名称 2是注释
 	 * @return
 	 */
 	public String getEntityString(String packageName, List<String> importSpaces, String entityName,

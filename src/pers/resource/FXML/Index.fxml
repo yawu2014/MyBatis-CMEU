@@ -315,6 +315,18 @@
    									<Cursor fx:constant="HAND" />
    								</cursor>
    							</Button>
+							<Button fx:id="btnRunBatCreate" layoutX="8.0" layoutY="557.0" mnemonicParsing="false" onAction="#runBatCreate" text="批量创建" AnchorPane.bottomAnchor="17.0">
+								<font>
+									<Font size="22.0" />
+								</font>
+								<styleClass>
+									<String fx:value="btn-success" />
+									<String fx:value="btn" />
+								</styleClass>
+								<cursor>
+									<Cursor fx:constant="HAND" />
+								</cursor>
+							</Button>
    							<Label layoutX="729.0" layoutY="587.0" text="QQ交流群:519714660" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" />
    							<CheckBox fx:id="chkService" layoutX="22.0" layoutY="488.0" mnemonicParsing="false" onAction="#onchkService" selected="true" text="创建service层" AnchorPane.bottomAnchor="108.0">
    								<font>

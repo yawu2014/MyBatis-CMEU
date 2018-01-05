@@ -104,5 +104,16 @@ public class StrUtil {
 		}
 		return str;
 	}
-
+	public static String unCapitalize(String str){
+		if(str != null && str.length() > 0){
+			char baseChar = str.charAt(0);
+			char updateChar = Character.toUpperCase(baseChar);
+			if(updateChar != baseChar){
+				char[] chars = str.toCharArray();
+				chars[0] = updateChar;
+				return new String(chars,0,chars.length);
+			}
+		}
+		return str;
+	}
 }

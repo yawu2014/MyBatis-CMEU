@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Class-Path: oracleJDBC.jar sqliteJDBC.jar JSONUtil-1.2.7.jar log4j-1.2
+ .17.jar mysqlJDBC.jar oracleJDBC.jar postgresqlJDBC.jar sqliteJDBC.ja
+ r sqlserverJDBC.jar sqlserverJDBC.jar JSONUtil-1.2.7.jar postgresqlJD
+ BC.jar log4j-1.2.17.jar mysqlJDBC.jar
+Main-Class: pers.Main
+

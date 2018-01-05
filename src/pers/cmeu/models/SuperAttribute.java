@@ -1,5 +1,7 @@
 package pers.cmeu.models;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class SuperAttribute {
@@ -190,6 +192,30 @@ public class SuperAttribute {
 	}
 
 	public List<AttributeCVF> getAttributes() {
+		/*Collections.sort(attributes, new Comparator<AttributeCVF>() {
+			@Override
+			public int compare(AttributeCVF o1, AttributeCVF o2) {
+				String str = o1.getConlumn();
+				String otherStr = o2.getConlumn();
+				if(o1.getConlumn().equals(getPrimaryKey())){
+					return -1;
+				}
+				if(o2.getConlumn().equals(getPrimaryKey())){
+					return 1;
+				}
+				int length = Math.min(otherStr.length(),str.length());
+				int compare = 0;
+				for(int i=0;i<length;i++){
+					if((compare = (str.charAt(i) - otherStr.charAt(i)))!=0){
+						break;
+					}
+				}
+				if(0 == compare){
+					compare = str.length() - otherStr.length();
+				}
+				return compare;
+			}
+		});*/
 		return attributes;
 	}
 
