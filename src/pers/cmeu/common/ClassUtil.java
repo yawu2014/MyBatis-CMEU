@@ -68,8 +68,7 @@ public class ClassUtil {
 
 	/**
 	 * 获得无参构造方法
-	 * 
-	 * @param cname
+	 *
 	 * @return
 	 */
 	private String getConstr(String entityName) {
@@ -157,4 +156,13 @@ public class ClassUtil {
 		return result.toString();
 	}
 
+	public static String getEntityName(String tableName){
+		return StrUtil.unlineToPascal(tableName)+"PO";
+	}
+	public static String getDAOName(String tableName){
+		return "I"+StrUtil.unlineToPascal(tableName)+"DAO";
+	}
+	public static String getDAOMapper(String tableName){
+		return StrUtil.unlineToPascal(tableName)+"DAO";
+	}
 }

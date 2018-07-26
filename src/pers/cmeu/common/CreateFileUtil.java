@@ -218,8 +218,9 @@ public class CreateFileUtil {
 				log.debug("执行生成Mapper...");
 				String mapStr = MapperUtil.getInstance().getMapperString(
 						uriToPackage(daoPackage) + "." + attr.getDaoName(), uriToPackage(entityPackage),
-						uriToPackage(assistPackage), databaseConfig.getDbType(), attr, createAssist,
+						uriToPackage(assistPackage), databaseConfig.getDbType(), attr, false,
 						attr.isCreateJDBCType());
+
 				Path mapPath = Paths.get(projectPath, packageToUri(projectRoot), packageToUri(mapPackage),
 						attr.getMapperName() + ".xml");
 				if (Files.exists(mapPath)) {
@@ -297,6 +298,9 @@ public class CreateFileUtil {
 		}
 
 		// 判断是否创建mybatisconfig配置文件
+
+
+
 		if (createConfig) {
 			if (Files.notExists(Paths.get(projectPath, projectRoot, configPackage, configName))) {
 				Files.createDirectories(Paths.get(projectPath, packageToUri(projectRoot), packageToUri(configPackage)));

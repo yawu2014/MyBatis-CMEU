@@ -1,3 +1,5 @@
 Manifest-Version: 1.0
+Class-Path: JSONUtil-1.2.7.jar sqlserverJDBC.jar oracleJDBC.jar log4j-
+ 1.2.17.jar sqliteJDBC.jar postgresqlJDBC.jar mysqlJDBC.jar
 Main-Class: pers.Main
 

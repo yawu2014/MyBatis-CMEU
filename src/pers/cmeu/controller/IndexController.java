@@ -30,10 +30,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import pers.cmeu.common.ConfigUtil;
-import pers.cmeu.common.CreateFileUtil;
-import pers.cmeu.common.DBUtil;
-import pers.cmeu.common.StrUtil;
+import pers.cmeu.common.*;
 import pers.cmeu.models.AttributeCVF;
 import pers.cmeu.models.ClassConfig;
 import pers.cmeu.models.DatabaseConfig;
@@ -58,22 +55,22 @@ public class IndexController extends BaseController {
 	private boolean falg = true;
 
 	@FXML
-	private Label lblConnection;
+	private Label lblConnection;	//数据库连接
 	@FXML
-	private Label lblConfig;
+	private Label lblConfig;		//数据库配置
 	@FXML
-	private TreeView<String> tvDataBase;
+	private TreeView<String> tvDataBase;	//左侧树形展示连接信息
 	@FXML
-	private TextField txtProjectPath;
+	private TextField txtProjectPath;	//保存生成文件的目录
 	@FXML
-	private TextField txtRootDir;
+	private TextField txtRootDir;		//项目目录
 	@FXML
-	private TextField txtTableName;
+	private TextField txtTableName;		//数据库表名
 
 	@FXML
-	private TextField txtDaoPackage;
+	private TextField txtDaoPackage;	//DAO包名
 	@FXML
-	private TextField txtDaoName;
+	private TextField txtDaoName;		//DAO 名
 	@FXML
 	private TextField txtServicePackage;
 	@FXML
@@ -197,7 +194,7 @@ public class IndexController extends BaseController {
 				int level = tvDataBase.getTreeItemLevel(cell.getTreeItem());
 				TreeCell<String> treeCell = (TreeCell<String>) event.getSource();
 				TreeItem<String> treeItem = treeCell.getTreeItem();
-				if (level == 1) {
+				if (level == 1) {	//第一级的菜单，添加右键菜单
 					final ContextMenu contextMenu = new ContextMenu();
 					MenuItem item0 = new MenuItem("打开连接");
 					item0.setOnAction(event1 -> {
@@ -261,15 +258,15 @@ public class IndexController extends BaseController {
 					contextMenu.getItems().addAll(item0, item1, item3, item2);
 					cell.setContextMenu(contextMenu);
 				}
-				// 加载所有表
+				// 加载所有表 双击
 				if (event.getClickCount() == 2) {
 					if (treeItem == null) {
 						return;
 					}
 					treeItem.setExpanded(true);
-					if (level == 1) {
+					if (level == 1) {		//一级菜单展示表信息
 						log.debug("加载所有表....");
-						DatabaseConfig selectedConfig = (DatabaseConfig) treeItem.getGraphic().getUserData();
+						DatabaseConfig selectedConfig = (DatabaseConfig) treeItem.getGraphic().getUserData();	//配置信息放到了userData中
 						try {
 							List<String> tables = DBUtil.getTableNames(selectedConfig);
 							if (tables != null && tables.size() > 0) {
@@ -294,15 +291,15 @@ public class IndexController extends BaseController {
 							AlertUtil.showErrorAlert(e.getMessage());
 							log.error("加载所有表失败!!!" + e);
 						}
-					} else if (level == 2) {
+					} else if (level == 2) {	//二级菜单将表信息带到右侧
 						log.debug("将表的数据加载到数据面板...");
 						String tableName = treeCell.getTreeItem().getValue();
 						selectedDatabaseConfig = (DatabaseConfig) treeItem.getParent().getGraphic().getUserData();
 						selectedTableName = tableName;
 						txtTableName.setText(tableName);
-						txtEntityName.setText(StrUtil.unlineToPascal(tableName));
-						txtDaoName.setText(StrUtil.unlineToPascal(tableName) + "Dao");
-						txtMapName.setText(StrUtil.unlineToPascal(tableName) + "Mapper");
+						txtEntityName.setText(ClassUtil.getEntityName(tableName));
+						txtDaoName.setText(ClassUtil.getDAOName(tableName));
+						txtMapName.setText(ClassUtil.getDAOMapper(tableName));
 						txtServiceName.setText(StrUtil.unlineToPascal(tableName) + "Service");
 						txtServiceImplName.setText(StrUtil.unlineToPascal(tableName) + "ServiceImpl");
 						log.debug("将表的数据加载到数据面板成功!");
@@ -315,6 +312,12 @@ public class IndexController extends BaseController {
 
 		try {
 			loadTVDataBase();
+			onchkService(null);
+			onchkAssist(null);
+			onchkMyConfig(null);
+			onchkMyUtil(null);
+			onChkFristCreateMybatis(null);
+
 			log.debug("加载所有数据库到左侧树集成功!");
 		} catch (Exception e1) {
 			AlertUtil.showErrorAlert(e1.getMessage());
@@ -359,16 +362,6 @@ public class IndexController extends BaseController {
 			treeItem.setGraphic(dbImage);
 			rootTreeItem.getChildren().add(treeItem);
 		}
-		/*for (DatabaseConfig dbConfig : item) {
-			CheckBoxTreeItem<String> treeItem = new CheckBoxTreeItem<String>();
-			treeItem.setValue(dbConfig.getConnName());
-			ImageView dbImage = new ImageView("pers/resource/image/database.png");
-			dbImage.setFitHeight(20);
-			dbImage.setFitWidth(20);
-			dbImage.setUserData(dbConfig);
-			treeItem.setGraphic(dbImage);
-			rootTreeItem.getChildren().add(treeItem);
-		}*/
 	}
 
 	/**
@@ -568,6 +561,10 @@ public class IndexController extends BaseController {
 
 	}
 
+	/**
+	 * 批量执行创建
+	 * @param action
+	 */
 	public void runBatCreate(ActionEvent action){
 		if (txtProjectPath.getText().trim().equals("") || txtRootDir.getText().trim().equals("")) {
 			AlertUtil.showWarnAlert("项目所在目录以及类名为必填项;\r\n实体类可以通过双击左边树形数据库表加载...");
@@ -579,9 +576,9 @@ public class IndexController extends BaseController {
 			for(Object item : observableList){
 				TreeItem treeItem = (TreeItem)item;
 				String tableName = String.valueOf(treeItem.getValue());
-				String txtEntityName = StrUtil.unlineToPascal(tableName);
-				String txtDaoName = StrUtil.unlineToPascal(tableName) + "Dao";
-				String txtMapName = StrUtil.unlineToPascal(tableName) + "Mapper";
+				String txtEntityName = ClassUtil.getEntityName(tableName);
+				String txtDaoName = ClassUtil.getDAOName(tableName);
+				String txtMapName = ClassUtil.getDAOMapper(tableName);
 				String txtServiceName = StrUtil.unlineToPascal(tableName) + "Service";
 				String txtServiceImplName = StrUtil.unlineToPascal(tableName) + "ServiceImpl";
 				List<SuperAttribute> thisSuperAttributes = new ArrayList<>();

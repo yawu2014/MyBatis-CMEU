@@ -1,14 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.scene.control.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<ScrollPane prefHeight="702.0" prefWidth="1171.0" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pers.cmeu.controller.IndexController">
+<ScrollPane prefHeight="702.0" prefWidth="1171.0" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pers.cmeu.controller.IndexController">
    <content>
    	<BorderPane prefHeight="700.0" prefWidth="1168.0">
    		<top>
@@ -328,7 +339,7 @@
 								</cursor>
 							</Button>
    							<Label layoutX="729.0" layoutY="587.0" text="QQ交流群:519714660" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-   							<CheckBox fx:id="chkService" layoutX="22.0" layoutY="488.0" mnemonicParsing="false" onAction="#onchkService" selected="true" text="创建service层" AnchorPane.bottomAnchor="108.0">
+   							<CheckBox fx:id="chkService" layoutX="22.0" layoutY="488.0" mnemonicParsing="false" onAction="#onchkService" text="创建service层" AnchorPane.bottomAnchor="108.0">
    								<font>
    									<Font size="16.0" />
    								</font>
@@ -361,7 +372,7 @@
    									<Cursor fx:constant="HAND" />
    								</cursor>
    							</CheckBox>
-   							<CheckBox fx:id="chkAssist" layoutX="175.0" layoutY="488.0" mnemonicParsing="false" onAction="#onchkAssist" selected="true" text="创建查询工具">
+   							<CheckBox fx:id="chkAssist" layoutX="175.0" layoutY="488.0" mnemonicParsing="false" onAction="#onchkAssist" text="创建查询工具">
    								<cursor>
    									<Cursor fx:constant="HAND" />
    								</cursor>
@@ -402,7 +413,7 @@
                            </font>
                         </Label>
                         <ComboBox fx:id="cboCodeFormat" layoutX="715.0" layoutY="488.0" prefHeight="23.0" prefWidth="126.0" />
-                        <CheckBox fx:id="chkSpringAnno" layoutX="22.0" layoutY="524.0" mnemonicParsing="false" selected="true" text="生成Spring-Service注解">
+                        <CheckBox fx:id="chkSpringAnno" layoutX="22.0" layoutY="524.0" mnemonicParsing="false" text="生成Spring-Service注解">
                            <font>
                               <Font size="16.0" />
                            </font>

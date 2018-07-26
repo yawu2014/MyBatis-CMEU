@@ -792,9 +792,9 @@ public class MapperUtil {
 		}
 		result.append(" resultType=\"java.lang.Long\">\r\n");
 		if (attr.getPrimaryKey() != null) {
-			result.append("        select count(" + attr.getPrimaryKey() + ") from " + attr.getTableName() + "\r\n");
+			result.append("        select count(" + attr.getPrimaryKey() + ") from " + attr.getTableName() + " where valid=1\r\n");
 		} else {
-			result.append("        select count(*) from " + attr.getTableName() + "\r\n");
+			result.append("        select count(*) from " + attr.getTableName() + " where valid=1\r\n");
 		}
 		if (anyAssist) {
 			result.append("        <if test=\"require!=null\"><include refid=\"Assist\" /></if>\r\n");
@@ -871,7 +871,7 @@ public class MapperUtil {
 			result.append("            </otherwise>\r\n");
 			result.append("        </choose>\r\n");
 		}
-		result.append("        from " + attr.getTableName() + "\r\n");
+		result.append("        from " + attr.getTableName() + " where valid=1\r\n");
 		if (attr.getColumnItems() != null) {
 			result.append(getJoinStr(attr.getColumnItems(), attr.getTableName(), 8));
 		}
